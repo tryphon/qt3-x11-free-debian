@@ -1,0 +1,18 @@
+qt-bugs@ issue : N64978
+applied: no
+author: Germain Garand <germain@ebooksfrance.org>
+
+In QScrollView, wheel events are forwarded to (viewport|contents)WheelEvent, but
+the horizontal/vertical status of the wheel event is not.
+
+--- a/src/widgets/qscrollview.cpp
++++ b/src/widgets/qscrollview.cpp
+@@ -1868,7 +1868,7 @@ void QScrollView::viewportWheelEvent( QW
+        the event itself.
+     */
+     QWheelEvent ce( viewportToContents(e->pos()),
+-        e->globalPos(), e->delta(), e->state());
++        e->globalPos(), e->delta(), e->state(), e->orientation());
+     contentsWheelEvent(&ce);
+     if ( ce.isAccepted() )
+         e->accept();

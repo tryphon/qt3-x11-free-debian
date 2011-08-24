@@ -1,0 +1,83 @@
+--- a/plugins/src/inputmethods/simple/qsimpleinputcontext.cpp
++++ b/plugins/src/inputmethods/simple/qsimpleinputcontext.cpp
+@@ -141,7 +141,7 @@ bool QSimpleInputContext::filterEvent( c
+         // only one character. See description of
+         // QInputContext::filterEvent() about key compression.
+         val = text[0].unicode();
+-        qDebug( "str = %s", (const char*)keyevent->text().local8Bit() );
++       // qDebug( "str = %s", (const char*)keyevent->text().local8Bit() );
+     }
+ 
+     // Store value
+@@ -165,14 +165,14 @@ bool QSimpleInputContext::filterEvent( c
+ 
+ void QSimpleInputContext::setFocus()
+ {
+-    qDebug( "QSimpleInputContext: %p->setFocus(), focusWidget()=%p",
+-            this, focusWidget() );
++    //qDebug( "QSimpleInputContext: %p->setFocus(), focusWidget()=%p",
++            //this, focusWidget() );
+ }
+ 
+ void QSimpleInputContext::unsetFocus()
+ {
+-    qDebug( "QSimpleInputContext: %p->unsetFocus(), focusWidget()=%p",
+-            this, focusWidget() );
++    //qDebug( "QSimpleInputContext: %p->unsetFocus(), focusWidget()=%p",
++            //this, focusWidget() );
+     reset();
+ }
+ 
+@@ -189,8 +189,8 @@ void QSimpleInputContext::mouseHandler( 
+     case QEvent::MouseButtonRelease:
+     case QEvent::MouseButtonDblClick:
+     case QEvent::MouseMove:
+-        qDebug( "QSimpleInputContext::mouseHandler: "
+-                "x=%d, type=%d, button=%d, state=%d", x, type, button, state );
++       // qDebug( "QSimpleInputContext::mouseHandler: "
++               // "x=%d, type=%d, button=%d, state=%d", x, type, button, state );
+         break;
+     default:
+         break;
+@@ -241,7 +241,7 @@ bool QSimpleInputContext::checkComposeTa
+ 
+     // no entries were found
+     if ( p == composeTable->data + composeTable->size ) {
+-        qDebug( "no match" );
++       // qDebug( "no match" );
+         clearComposeBuffer();
+         return FALSE;
+     }
+@@ -251,18 +251,18 @@ bool QSimpleInputContext::checkComposeTa
+ 
+         // check if partial match
+         if ( composeBuffer[i] == 0 && p->keys[i] ) {
+-            qDebug("partial match");
++            // qDebug("partial match");
+             return TRUE;
+         }
+ 
+         if ( composeBuffer[i] != p->keys[i] ) {
+-            qDebug("different entry");
++          // qDebug("different entry");
+             clearComposeBuffer();
+             return i!=0;
+         }
+     }
+ 
+-    qDebug("match exactly");
++   // qDebug("match exactly");
+ 
+     // match exactly
+     commitChar( p->value );
+--- a/plugins/src/inputmethods/xim/qximinputcontext_x11.cpp
++++ b/plugins/src/inputmethods/xim/qximinputcontext_x11.cpp
+@@ -361,7 +361,7 @@ void QXIMInputContext::setHolderWidget( 
+     }
+ 
+     if (! widget->isTopLevel()) {
+-	qWarning("QInputContext: cannot create input context for non-toplevel widgets");
++       // qWarning("QInputContext: cannot create input context for non-toplevel widgets");
+ 	return;
+     }
+ 

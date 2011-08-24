@@ -1,0 +1,14 @@
+author: Damyan Ivanov <dmn@debian.org>
+
+@DPATCH@
+--- a/src/sql/drivers/ibase/qsql_ibase.cpp
++++ b/src/sql/drivers/ibase/qsql_ibase.cpp
+@@ -767,7 +767,7 @@ QIBaseDriver::QIBaseDriver(void *connect
+     : QSqlDriver(parent, name ? name : QIBASE_DRIVER_NAME)
+ {
+     d = new QIBaseDriverPrivate(this);
+-    d->ibase = (isc_db_handle)connection;
++    d->ibase = (isc_db_handle)(long int)connection;
+     setOpen(TRUE);
+     setOpenError(FALSE);
+ }

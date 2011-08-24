@@ -1,0 +1,47 @@
+author: Fathi Boudra <fabo@debian.org>
+
+Fixes compilation issues with gcc 4.3
+
+--- a/src/kernel/qapplication_x11.cpp
++++ b/src/kernel/qapplication_x11.cpp
+@@ -116,6 +116,7 @@ extern "C" Bool XftInitFtLibrary(void);
+ #include <string.h>
+ #include <ctype.h>
+ #include <locale.h>
++#include <cstdlib>
+ 
+ //#define X_NOT_BROKEN
+ #ifdef X_NOT_BROKEN
+--- a/tools/makeqpf/main.cpp
++++ b/tools/makeqpf/main.cpp
+@@ -47,7 +47,7 @@
+ #include <qmemorymanager_qws.h>
+ #endif
+ 
+-#include <stdlib.h>
++#include <cstdlib>
+ 
+ 
+ class FontViewItem : public QListViewItem {
+--- a/plugins/src/inputmethods/imsw-none/qnoneinputcontextplugin.cpp
++++ b/plugins/src/inputmethods/imsw-none/qnoneinputcontextplugin.cpp
+@@ -44,7 +44,7 @@
+ #include "qnoneinputcontextplugin.h"
+ #include <qinputcontextfactory.h>
+ #include <qsettings.h>
+-#include <stdlib.h>
++#include <cstdlib>
+ 
+ 
+ QNoneInputContextPlugin::QNoneInputContextPlugin()
+--- a/plugins/src/inputmethods/imsw-multi/qmultiinputcontext.cpp
++++ b/plugins/src/inputmethods/imsw-multi/qmultiinputcontext.cpp
+@@ -49,7 +49,7 @@
+ #include <qsettings.h>
+ #endif
+ 
+-#include <stdlib.h>
++#include <cstdlib>
+ 
+ #define QT_NO_IM_QMULTIINPUTCONTEXT_IMINDEX
+ 

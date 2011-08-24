@@ -1,0 +1,29 @@
+--- a/src/tools/qlocale.cpp
++++ b/src/tools/qlocale.cpp
+@@ -125,13 +125,24 @@ static inline double nan()
+ #endif
+ 
+ // We can't rely on -NAN, since all operations on a NAN should return a NAN.
++static double be_neg_nan; 
++static double le_neg_nan;
+ static const unsigned char be_neg_nan_bytes[] = { 0xff, 0xf8, 0, 0, 0, 0, 0, 0 };
+ static const unsigned char le_neg_nan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0xff };
++static bool neg_nan_init = false;
++
+ static inline double negNan()
+ {
++    if (!neg_nan_init)
++    {
++        memcpy(&be_neg_nan,be_neg_nan_bytes,sizeof(be_neg_nan_bytes));
++        memcpy(&le_neg_nan,le_neg_nan_bytes,sizeof(le_neg_nan_bytes));
++        neg_nan_init = true;
++    }
+     return (ByteOrder == BigEndian ?
+-            *((const double *) be_neg_nan_bytes) :
+-            *((const double *) le_neg_nan_bytes));
++            be_neg_nan : 
++            le_neg_nan);
++            
+ }
+ 
+ // Sizes as defined by the ISO C99 standard - fallback

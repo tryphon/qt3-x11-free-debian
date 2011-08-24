@@ -1,0 +1,173 @@
+author: Cyril Brulebois <cyril.brulebois@enst-bretagne.fr>
+
+Add support for GNU/Hurd, by fixing POSIX incompatibilities and
+fixing proper compiler options
+
+--- a/mkspecs/hurd-g++/qmake.conf
++++ b/mkspecs/hurd-g++/qmake.conf
+@@ -15,7 +15,7 @@ QMAKE_LEX		= flex
+ QMAKE_LEXFLAGS		= 
+ QMAKE_YACC		= yacc
+ QMAKE_YACCFLAGS		= -d
+-QMAKE_CFLAGS		=
++QMAKE_CFLAGS		= -pipe
+ QMAKE_CFLAGS_DEPS	= -M
+ QMAKE_CFLAGS_WARN_ON	= -Wall -W
+ QMAKE_CFLAGS_WARN_OFF	= -w
+@@ -23,6 +23,7 @@ QMAKE_CFLAGS_RELEASE	= -O2
+ QMAKE_CFLAGS_DEBUG	= -g
+ QMAKE_CFLAGS_SHLIB	= -fPIC
+ QMAKE_CFLAGS_YACC	= -Wno-unused -Wno-parentheses
++QMAKE_CFLAGS_THREAD	= -D_REENTRANT
+ 
+ QMAKE_CXX		= g++
+ QMAKE_CXXFLAGS		= $$QMAKE_CFLAGS
+@@ -33,6 +34,7 @@ QMAKE_CXXFLAGS_RELEASE	= $$QMAKE_CFLAGS_
+ QMAKE_CXXFLAGS_DEBUG	= $$QMAKE_CFLAGS_DEBUG
+ QMAKE_CXXFLAGS_SHLIB	= $$QMAKE_CFLAGS_SHLIB
+ QMAKE_CXXFLAGS_YACC	= $$QMAKE_CFLAGS_YACC
++QMAKE_CXXFLAGS_THREAD	= $$QMAKE_CFLAGS_THREAD
+ 
+ QMAKE_INCDIR		=
+ QMAKE_LIBDIR		=
+@@ -51,14 +53,19 @@ QMAKE_LFLAGS_DEBUG	=
+ QMAKE_LFLAGS_SHLIB	= -shared
+ QMAKE_LFLAGS_PLUGIN	= $$QMAKE_LFLAGS_SHLIB
+ QMAKE_LFLAGS_SONAME	= -Wl,-soname,
++QMAKE_LFLAGS_THREAD	=
+ 
+-QMAKE_LIBS		=
++# The following trick (QMAKE_LIBS{,_THREAD}) is needed at the moment
++QMAKE_LIBS		= -lpthread
+ QMAKE_LIBS_DYNLOAD	= -ldl
+ QMAKE_LIBS_X11		= -lXext -lX11 -lm
++QMAKE_LIBS_X11SM	= -lSM -lICE
++QMAKE_LIBS_NIS		= -lnsl
+ QMAKE_LIBS_QT		= -lqt
+-
++QMAKE_LIBS_QT_THREAD	= -lqt-mt
+ QMAKE_LIBS_OPENGL	= -lGLU -lGL -lXmu
+ QMAKE_LIBS_OPENGL_QT	= -lGL -lXmu
++QMAKE_LIBS_THREAD	= 
+ 
+ QMAKE_MOC		= $(QTDIR)/bin/moc
+ QMAKE_UIC		= $(QTDIR)/bin/uic
+--- a/src/tools/qdir_unix.cpp
++++ b/src/tools/qdir_unix.cpp
+@@ -74,6 +74,20 @@ QString QDir::homeDirPath()
+ QString QDir::canonicalPath() const
+ {
+     QString r;
++#if defined(__GLIBC__) && !defined(PATH_MAX)
++    char *cur = ::get_current_dir_name();
++    if ( cur ) {
++        char *tmp = canonicalize_file_name( QFile::encodeName( dPath ).data() );
++        if ( tmp ) {
++            r = QFile::decodeName( tmp );
++            free( tmp );
++        }
++        slashify( r );
++    	// always make sure we go back to the current dir
++        ::chdir( cur );
++        free( cur );
++    }
++#else
+     char cur[PATH_MAX+1];
+     if ( ::getcwd( cur, PATH_MAX ) ) {
+ 	char tmp[PATH_MAX+1];
+@@ -86,6 +100,7 @@ QString QDir::canonicalPath() const
+     	// always make sure we go back to the current dir
+ 	::chdir( cur );
+     }
++#endif  /* __GLIBC__ && !PATH_MAX */
+     return r;
+ }
+ 
+@@ -147,9 +162,17 @@ QString QDir::currentDirPath()
+ 
+     struct stat st;
+     if ( ::stat( ".", &st ) == 0 ) {
++#if defined(__GLIBC__)  && !defined(PATH_MAX)
++        char *currentName = ::get_current_dir_name();
++        if ( currentName ) {
++            result = QFile::decodeName(currentName);
++            free( currentName );
++        }
++#else
+ 	char currentName[PATH_MAX+1];
+ 	if ( ::getcwd( currentName, PATH_MAX ) )
+ 	    result = QFile::decodeName(currentName);
++#endif /* __GLIBC__ && !PATH_MAX */
+ #if defined(QT_DEBUG)
+ 	if ( result.isNull() )
+ 	    qWarning( "QDir::currentDirPath: getcwd() failed" );
+--- a/src/tools/qfileinfo_unix.cpp
++++ b/src/tools/qfileinfo_unix.cpp
+@@ -48,6 +48,9 @@
+ #if !defined(QWS) && defined(Q_OS_MAC)
+ # include <qt_mac.h>
+ #endif
++#if defined(Q_OS_HURD)
++# include <stdlib.h>
++#endif
+ 
+ void QFileInfo::slashify( QString& )
+ {
+@@ -127,16 +130,43 @@ bool QFileInfo::isSymLink() const
+ 
+ QString QFileInfo::readLink() const
+ {
++    if ( !isSymLink() )
++        return QString();
+ #if defined(Q_OS_UNIX) && !defined(Q_OS_OS2EMX)
++#if defined(__GLIBC__) && !defined(PATH_MAX)
++    int size = 256;
++    char *s = NULL, *s2;
++
++    while (1)
++    {
++        s2 = (char *) realloc (s, size);
++        if (s2 == NULL) {
++            free( s );
++            return QString();
++        }
++        s = s2;
++        int len = readlink ( QFile::encodeName(fn).data(), s, size );
++        if ( len < 0 ) {
++            free( s );
++            return QString();
++        }
++        if ( len < size ) {
++            s[len] = '\0';
++            QString str = QFile::decodeName(s);
++            free(s);
++            return str;
++        }
++        size *= 2;
++    }
++#else
+     char s[PATH_MAX+1];
+-    if ( !isSymLink() )
+-	return QString();
+     int len = readlink( QFile::encodeName(fn).data(), s, PATH_MAX );
+     if ( len >= 0 ) {
+ 	s[len] = '\0';
+ 	return QFile::decodeName(s);
+     }
+-#endif
++#endif /* __GLIBC__ && !PATH_MAX */
++#endif /* Q_OS_UNIX && !Q_OS_OS2EMX */
+ #if !defined(QWS) && defined(Q_OS_MAC)
+     {
+         FSRef fref;
+--- a/src/tools/qglobal.h
++++ b/src/tools/qglobal.h
+@@ -115,6 +115,8 @@
+ #  define Q_OS_ULTRIX
+ #elif defined(sinix)
+ #  define Q_OS_RELIANT
++#elif defined(__GNU__)
++#  define Q_OS_HURD
+ #elif defined(__linux__) || defined(__linux) || defined(__GNU__) || defined(__GLIBC__)
+ #  define Q_OS_LINUX
+ #elif defined(__FreeBSD__) || defined(__DragonFly__)

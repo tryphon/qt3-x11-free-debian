@@ -1,0 +1,48 @@
+--- a/src/kernel/qapplication_x11.cpp
++++ b/src/kernel/qapplication_x11.cpp
+@@ -3337,11 +3337,11 @@ int QApplication::x11ProcessEvent( XEven
+     // filtering opportunity first to ensure all input methods work
+     // properly regardless of application design.
+ 
+-#ifndef QT_NO_IM_EXTENSIONS
++// #ifndef QT_NO_IM_EXTENSIONS
+     if( keywidget && keywidget->isEnabled() && keywidget->isInputMethodEnabled() ) {
+-#else
+-    if( keywidget && keywidget->isEnabled() ) {
+-#endif
++// #else
++//    if( keywidget && keywidget->isEnabled() ) {
++// #endif
+ 	if( ( event->type==XKeyPress || event->type==XKeyRelease ) &&
+ 	    sm_blockUserInput ) // block user interaction during session management
+ 	    return TRUE;
+--- a/src/kernel/qwidget_x11.cpp
++++ b/src/kernel/qwidget_x11.cpp
+@@ -2807,11 +2807,12 @@ QInputContext *QWidget::getInputContext(
+ {
+     QInputContext *qic = 0;
+ 
+-#if !defined(QT_NO_IM_EXTENSIONS)
++// #if !defined(QT_NO_IM_EXTENSIONS)
+     if ( isInputMethodEnabled() ) {
++#if !defined(QT_NO_IM_EXTENSIONS)
+ 	qic = icHolderWidget()->ic;
+ #else
+-    {
++//    {
+ 	// icHolderWidget is always topLevelWidget
+ 	QTLWExtra *topdata = icHolderWidget()->topData();
+ 	qic = (QInputContext *)topdata->xic;
+@@ -2862,10 +2863,10 @@ void QWidget::changeInputContext( const 
+ */
+ void QWidget::createInputContext()
+ {
+-#if !defined(QT_NO_IM_EXTENSIONS)
++// #if !defined(QT_NO_IM_EXTENSIONS)
+     if( !isInputMethodEnabled() || QApplication::closingDown() )
+ 	return;
+-#endif
++// #endif
+ 
+     QWidget *icWidget = icHolderWidget();
+ #ifndef QT_NO_IM

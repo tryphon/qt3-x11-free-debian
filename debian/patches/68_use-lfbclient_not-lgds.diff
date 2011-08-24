@@ -1,0 +1,37 @@
+author: Sune Vuorela <debian@pusling.com>
+
+Use -lfbclient instead of -lgds, as it is not shipped anymore
+
+--- a/configure
++++ b/configure
+@@ -1645,7 +1645,7 @@ if echo $MODULES | grep sql >/dev/null; 
+     ODBC_REQ="-lodbc sql.h sqlext.h"
+     TDS_REQ="-lsybdb sybfront.h sybdb.h"
+     DB2_REQ="-ldb2 sqlcli.h sqlcli1.h"
+-    IBASE_REQ="-lgds ibase.h"
++    IBASE_REQ="-lfbclient ibase.h"
+     for _SQLDR in $CFG_SQL_AVAILABLE; do
+ 	case $_SQLDR in
+ 	mysql)
+--- a/plugins/src/sqldrivers/ibase/ibase.pro
++++ b/plugins/src/sqldrivers/ibase/ibase.pro
+@@ -12,7 +12,7 @@ unix {
+ 	OBJECTS_DIR = .obj
+ 
+ 	!contains( LIBS, .*gds.* ):!contains( LIBS, .*libfb.* ) {
+-	    LIBS    *= -lgds
++	    LIBS    *= -lfbclient
+ 	}
+ }
+ win32 {
+--- a/src/sql/qt_sql.pri
++++ b/src/sql/qt_sql.pri
+@@ -188,7 +188,7 @@ sql {
+                 SOURCES += $$SQL_CPP/drivers/ibase/qsql_ibase.cpp
+                 DEFINES += QT_SQL_IBASE
+                 unix {
+-                        LIBS *= -lgds
++                        LIBS *= -lfbclient
+                 }
+                 win32 {
+ 			!win32-borland:LIBS *= gds32_ms.lib

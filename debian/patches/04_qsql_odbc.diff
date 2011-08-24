@@ -1,0 +1,54 @@
+author: Martin Loschwitz <madkiss@madkiss.org>
+
+Make the package build with libiodbc2-dev instead of unixodbc-dev
+
+--- a/plugins/src/sqldrivers/odbc/odbc.pro
++++ b/plugins/src/sqldrivers/odbc/odbc.pro
+@@ -17,7 +17,7 @@ mac {
+ unix {
+ 	OBJECTS_DIR	= .obj
+ 	!contains( LIBS, .*odbc.* ) {
+-	    LIBS 	*= -lodbc
++	    LIBS 	*= -liodbc
+ 	}
+ }
+ 
+--- /dev/null
++++ b/src/sql/drivers/odbc/debian_qsql_odbc.h
+@@ -0,0 +1,10 @@
++#ifdef UNICODE
++typedef SQLWCHAR        SQLTCHAR;
++#else
++typedef SQLCHAR         SQLTCHAR;
++#endif
++
++#define SQL_WCHAR              (-8)
++#define SQL_WVARCHAR           (-9)
++#define SQL_WLONGVARCHAR       (-10)
++#define SQL_C_WCHAR            SQL_WCHAR
+--- a/src/sql/drivers/odbc/qsql_odbc.h
++++ b/src/sql/drivers/odbc/qsql_odbc.h
+@@ -78,11 +78,8 @@
+ #  undef _MSC_VER
+ #endif
+ 
+-#ifndef Q_ODBC_VERSION_2
+-#include <sqlucode.h>
+-#endif
+-
+ #include <sqlext.h>
++#include "debian_qsql_odbc.h"
+ 
+ class QODBCPrivate;
+ class QODBCDriver;
+--- a/src/sql/qt_sql.pri
++++ b/src/sql/qt_sql.pri
+@@ -116,7 +116,7 @@ sql {
+ 
+ 		unix {
+ 			!contains( LIBS, .*odbc.* ) {
+-				LIBS        *= -lodbc
++				LIBS        *= -liodbc
+ 			}
+ 		}
+ 

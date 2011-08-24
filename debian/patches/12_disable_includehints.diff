@@ -1,0 +1,20 @@
+--- a/tools/designer/uic/form.cpp
++++ b/tools/designer/uic/form.cpp
+@@ -733,16 +733,7 @@ void Uic::createFormImpl( const QDomElem
+ 		}
+ 		n2 = n2.nextSibling().toElement();
+ 	    }
+-        } else if ( n.tagName() == "includehints" ) {
+-            QDomElement n2 = n.firstChild().toElement();
+-            while ( !n2.isNull() ) {
+-                if ( n2.tagName() == "includehint" ) {
+-                    QString file = n2.firstChild().toText().data();
+-                    localIncludes += file;
+-                }
+-                n2 = n2.nextSibling().toElement();
+-            }
+-        }
++	}
+     }
+ 
+     // additional includes (local or global) and forward declaractions

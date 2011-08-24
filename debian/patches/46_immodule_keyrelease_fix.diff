@@ -1,0 +1,17 @@
+--- a/src/kernel/qapplication_x11.cpp
++++ b/src/kernel/qapplication_x11.cpp
+@@ -5264,11 +5264,12 @@ bool QETWidget::translateKeyEventInterna
+     } else {
+ 	key = (int)(long)keyDict->find( keycode );
+ 	if ( key )
+-	    if( !willRepeat ) // Take out key of dictionary only if this call.
++	    if( !willRepeat && statefulTranslation ) // Take out key of dictionary only if this call.
+ 		keyDict->take( keycode );
+ 	long s = (long)textDict->find( keycode );
+ 	if ( s ) {
+-	    textDict->take( keycode );
++	     if( statefulTranslation )
++		textDict->take( keycode );
+ 	    ascii = (char)(s-256);
+ 	}
+     }

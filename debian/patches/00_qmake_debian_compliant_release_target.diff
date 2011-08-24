@@ -1,0 +1,43 @@
+--- a/configure
++++ b/configure
+@@ -2607,8 +2607,14 @@ if true; then ###[ '!' -f "$outpath/bin/
+         grep "^QMAKE_LFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
+ 	if [ "$CFG_DEBUG" = "yes" ]; then
+             grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
++            grep "^QMAKE_CXXFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS_DEBUG,\$(QMAKE_CFLAGS_DEBUG)," >>$mkfile
+ 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_DEBUG)"
+ 	    EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS \$(QMAKE_CXXFLAGS_DEBUG)"
++	else
++	    grep "QMAKE_CFLAGS_RELEASE[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
++	    grep "^QMAKE_CXXFLAGS_RELEASE[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS_RELEASE,\$(QMAKE_CFLAGS_RELEASE)," >>$mkfile
++	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_RELEASE)"
++	    EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS \$(QMAKE_CXXFLAGS_RELEASE)"
+         fi
+ 	if [ "$PLATFORM_MAC" = "yes" ]; then
+ 	    echo "CARBON_LFLAGS +=-framework CoreServices" >>$mkfile
+--- a/mkspecs/linux-g++/qmake.conf
++++ b/mkspecs/linux-g++/qmake.conf
+@@ -16,12 +16,12 @@ QMAKE_YACCFLAGS		= -d
+ QMAKE_YACCFLAGS_MANGLE  = -p $base -b $base
+ QMAKE_YACC_HEADER       = $base.tab.h
+ QMAKE_YACC_SOURCE       = $base.tab.c
+-QMAKE_CFLAGS		= -pipe
++QMAKE_CFLAGS		= -pipe -g
+ QMAKE_CFLAGS_DEPS	= -M
+ QMAKE_CFLAGS_WARN_ON	= -Wall -W
+ QMAKE_CFLAGS_WARN_OFF	= -w
+ QMAKE_CFLAGS_RELEASE	= -O2
+-QMAKE_CFLAGS_DEBUG	= -g
++QMAKE_CFLAGS_DEBUG	= -O0
+ QMAKE_CFLAGS_SHLIB	= -fPIC
+ QMAKE_CFLAGS_YACC	= -Wno-unused -Wno-parentheses
+ QMAKE_CFLAGS_THREAD	= -D_REENTRANT
+@@ -83,7 +83,7 @@ QMAKE_COPY_DIR          = $(COPY) -r
+ QMAKE_MOVE		= mv -f
+ QMAKE_DEL_FILE		= rm -f
+ QMAKE_DEL_DIR		= rmdir
+-QMAKE_STRIP             = strip
++QMAKE_STRIP             =
+ QMAKE_STRIPFLAGS_LIB 	+= --strip-unneeded
+ QMAKE_CHK_DIR_EXISTS	= test -d
+ QMAKE_MKDIR		= mkdir -p

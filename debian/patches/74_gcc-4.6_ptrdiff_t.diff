@@ -1,0 +1,26 @@
+Author: Jonathan Riddell <jriddell@ubuntu.com>
+Last-Update: 2011-01-27
+Origin: vendor
+Forwarded: no
+Bug-Debian: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=594436
+
+--- a/src/tools/qvaluelist.h
++++ b/src/tools/qvaluelist.h
+@@ -50,6 +50,7 @@
+ #ifndef QT_NO_STL
+ #include <iterator>
+ #include <list>
++#include <cstddef>
+ #endif
+ 
+ //#define QT_CHECK_VALUELIST_RANGE
+--- a/src/tools/qmap.h
++++ b/src/tools/qmap.h
+@@ -52,6 +52,7 @@
+ #ifndef QT_NO_STL
+ #include <iterator>
+ #include <map>
++#include <cstddef>
+ #endif
+ 
+ //#define QT_CHECK_MAP_RANGE

@@ -1,0 +1,19 @@
+--- a/tools/qvfb/pda.skin
++++ b/tools/qvfb/pda.skin
+@@ -1,4 +1,4 @@
+-pda_up.png pda_down.png
++/usr/share/qvfb/pda_up.png /usr/share/qvfb/pda_down.png
+ 57 81
+ 240 320
+ 0.5
+--- a/tools/qvfb/qvfb.cpp
++++ b/tools/qvfb/qvfb.cpp
+@@ -94,7 +94,7 @@ void QVFb::init( int display_id, int w, 
+ 	bool vis = isVisible();
+ 	if ( vis ) hide();
+ 	menuBar()->hide();
+-	Skin *skin = new Skin( this, skin_name, w, h );
++	Skin *skin = new Skin( this, QString::fromLatin1( "/etc/qt3/qvfb/" ) + skin_name, w, h );
+ 	view = new QVFbView( display_id, w, h, d, skin );
+ 	skin->setView( view );
+ 	view->setMargin( 0 );

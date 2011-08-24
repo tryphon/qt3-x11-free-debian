@@ -1,0 +1,74 @@
+Robert Millan <rmh@debian.org>
+
+unify declarations for Glibc-based systems in upstream files
+
+--- a/configure
++++ b/configure
+@@ -1324,7 +1324,7 @@ if [ "$CFG_EMBEDDED" != "no" ]; then
+ 	    XPLATFORM="qws/solaris-$CFG_EMBEDDED-g++"
+ 	fi
+ 	;;
+-    Linux:*)
++    Linux:*|GNU:*|GNU/*:*)
+ 	if [ -z "$PLATFORM" ]; then
+ 	    case "$UNAME_MACHINE" in
+ 	    *86)
+@@ -1379,9 +1379,6 @@ if [ -z "$PLATFORM" ]; then
+      QNX:*)
+ 	PLATFORM=qnx-g++
+ 	;;
+-     GNU:*)
+-	PLATFORM=hurd-g++
+-	;;
+      dgux:*)
+ 	PLATFORM=dgux-g++
+ 	;;
+@@ -1428,7 +1425,7 @@ if [ -z "$PLATFORM" ]; then
+ 	    - Also available for Tru64: tru64-g++
+ 	"
+ 	;;
+-     Linux:*)
++     Linux:*|GNU:*|GNU/*:*)
+ 	PLATFORM=linux-g++
+ 	PLATFORM_NOTES="
+ 	    - Also available for Linux: linux-kcc linux-icc linux-cxx
+--- a/doc/html/qglobal-h.html
++++ b/doc/html/qglobal-h.html
+@@ -151,7 +151,7 @@ body { background: #ffffff; color: black
+ #  define Q_OS_ULTRIX
+ #elif defined(sinix)
+ #  define Q_OS_RELIANT
+-#elif defined(__linux__) || defined(__linux)
++#elif defined(__linux__) || defined(__linux) || defined(__GNU__) || defined(__GLIBC__)
+ #  define Q_OS_LINUX
+ #elif defined(__FreeBSD__) || defined(__DragonFly__)
+ #  define Q_OS_FREEBSD
+@@ -173,8 +173,6 @@ body { background: #ffffff; color: black
+ #  define Q_OS_AIX
+ #elif defined(__Lynx__)
+ #  define Q_OS_LYNX
+-#elif defined(__GNU_HURD__)
+-#  define Q_OS_HURD
+ #elif defined(__DGUX__)
+ #  define Q_OS_DGUX
+ #elif defined(__QNXNTO__)
+--- a/src/tools/qglobal.h
++++ b/src/tools/qglobal.h
+@@ -115,7 +115,7 @@
+ #  define Q_OS_ULTRIX
+ #elif defined(sinix)
+ #  define Q_OS_RELIANT
+-#elif defined(__linux__) || defined(__linux)
++#elif defined(__linux__) || defined(__linux) || defined(__GNU__) || defined(__GLIBC__)
+ #  define Q_OS_LINUX
+ #elif defined(__FreeBSD__) || defined(__DragonFly__)
+ #  define Q_OS_FREEBSD
+@@ -137,8 +137,6 @@
+ #  define Q_OS_AIX
+ #elif defined(__Lynx__)
+ #  define Q_OS_LYNX
+-#elif defined(__GNU_HURD__)
+-#  define Q_OS_HURD
+ #elif defined(__DGUX__)
+ #  define Q_OS_DGUX
+ #elif defined(__QNXNTO__)

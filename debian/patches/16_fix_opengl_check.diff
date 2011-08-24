@@ -1,0 +1,30 @@
+--- a/src/opengl/qgl_x11.cpp
++++ b/src/opengl/qgl_x11.cpp
+@@ -128,7 +128,7 @@ bool qt_resolve_gl_symbols(bool fatal)
+     if (gl_syms_resolved)
+ 	return TRUE;
+ 
+-    QLibrary gl("GL");
++    QLibrary gl("GL.so.1");
+     gl.setAutoUnload(FALSE);
+ 
+     qt_glCallLists = (_glCallLists) gl.resolve("glCallLists");
+@@ -286,7 +286,7 @@ static Colormap choose_cmap( Display *dp
+ 	typedef Status (*_XmuLookupStandardColormap)( Display *dpy, int screen, VisualID visualid, unsigned int depth,
+ 						      Atom property, Bool replace, Bool retain );
+ 	_XmuLookupStandardColormap qt_XmuLookupStandardColormap;
+-	qt_XmuLookupStandardColormap = (_XmuLookupStandardColormap) QLibrary::resolve("Xmu", "XmuLookupStandardColormap");
++	qt_XmuLookupStandardColormap = (_XmuLookupStandardColormap) QLibrary::resolve("Xmu.so.6", "XmuLookupStandardColormap");
+ 	if (!qt_XmuLookupStandardColormap)
+ 	    qFatal("Unable to resolve Xmu symbols - please check your Xmu library installation.");
+ #define XmuLookupStandardColormap qt_XmuLookupStandardColormap
+--- a/src/tools/qlibrary.cpp
++++ b/src/tools/qlibrary.cpp
+@@ -429,6 +429,7 @@ QString QLibrary::library() const
+ 	    } else {
+ 		tmpfilename = QString( "lib%1" ).arg( filename );
+ 	    }
++	    if ( !filename.contains(".so") )
+ 	    tmpfilename += filter;
+ 	    if(QFile::exists(tmpfilename) || it == filters.end()) {
+ 		filename = tmpfilename;

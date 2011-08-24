@@ -1,0 +1,15 @@
+author: Michael Banck <mbanck@debian.org>
+
+Fixes the view of some bengali char
+
+--- a/qmake/option.cpp
++++ b/qmake/option.cpp
+@@ -67,7 +67,7 @@ Option::QMAKE_MODE Option::qmake_mode = 
+ //all modes
+ int Option::warn_level = WarnLogic;
+ int Option::debug_level = 0;
+-QFile Option::output;
++QFile Option::output("");
+ QString Option::output_dir;
+ QStringList Option::before_user_vars;
+ QStringList Option::after_user_vars;

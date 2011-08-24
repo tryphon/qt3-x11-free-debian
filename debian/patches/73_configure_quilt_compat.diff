@@ -1,0 +1,11 @@
+--- a/configure
++++ b/configure
+@@ -3634,7 +3634,7 @@ EXEC=""
+ 
+ echo "Finding project files. Please wait..."
+ if [ -z "$QMAKE_PROJECTS" ]; then
+-    QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sed 's-/\./-/-'`
++    QMAKE_PROJECTS=`find $relpath/. -name '.pc' -prune -o -name '*.pro' -print | sed 's-/\./-/-'`
+ else
+     QT_PROJECTS=
+     for a in `echo $QMAKE_PROJECTS`; do

@@ -1,0 +1,85 @@
+--- /dev/null
++++ b/src/__debian_export_symbols.cpp
+@@ -0,0 +1,63 @@
++// Use the __NO_INLINE__ hack below to prevent sys/stat.h from
++// exporting __extern_inline definitions of the symbols [fl]?stat64
++// with g++-4.3 or later and glibc6 >= 2.7 or later. This flag has no
++// impact on [fl]?stat(64)? symbol export for glibc6 << 2.7
++//
++#ifndef __NO_INLINE__
++# define __NO_INLINE__
++# define INLINE_ENABLED
++#endif
++
++#include <sys/stat.h>
++
++#if defined(__GLIBC_PREREQ) && __GLIBC_PREREQ(2, 7)
++
++// We must ensure that [fl]?stat64 are exported in the dynamic symbol
++// table of libqt-mt.so.3 as weak symbols to preserve ABI.
++int stat64 (__const char *__path, struct stat64 *__statbuf) __attribute__((weak));
++int lstat64 (__const char *__path, struct stat64 *__statbuf) __attribute__((weak));
++int fstat64 (int __fd, struct stat64 *__statbuf) __attribute__((weak));
++
++int stat64 (__const char *__path, struct stat64 *__statbuf)
++{
++    return __xstat64 (_STAT_VER, __path, __statbuf);
++}
++
++int lstat64 (__const char *__path, struct stat64 *__statbuf)
++{
++    return __lxstat64 (_STAT_VER, __path, __statbuf);
++}
++
++int fstat64 (int __fd, struct stat64 *__statbuf)
++{
++    return __fxstat64 (_STAT_VER, __fd, __statbuf);
++}
++
++#else
++# ifndef INLINE_ENABLED
++/*
++ * Trigger export of the extern __inline [fl]?stat64 symbols
++ * (defined at <sys/stat.h>) by referencing them in the dummy
++ * hidden function below. It's very important to reference
++ * [fl]?stat64 via their [fl]?stat aliases (because LARGEFILE
++ * is enabled) for these weak symbols to get exported.
++ *
++ * This hack is compatible with libc6-dev << 2.7 headers.
++ *
++ * This source file must be compiled with -fno-inline to have
++ * expected effect.
++ **/
++void __stat_extern_inline_export_hack()
++    __attribute__((visibility("hidden")));
++
++void __stat_extern_inline_export_hack() {
++    struct stat buf;
++    stat("", &buf);
++    lstat("", &buf);
++    fstat(0, &buf);
++}
++# else
++#  error "This file must be compiled with inline disabled for the hack to be effective."
++# endif /* INLINES_ENABLED */
++
++#endif
+--- a/src/qt.pro
++++ b/src/qt.pro
+@@ -174,6 +174,16 @@ unix {
+    QMAKE_PKGCONFIG_INCDIR = $$headers.path
+ }
+ 
++unix {
++    # Debian - compile __debian_export_symbols.cpp with -fno-inline
++    debian_no_inline.output  = .obj/${QMAKE_FILE_BASE}.o
++    debian_no_inline.commands = $(CXX) -c $(CXXFLAGS) $(INCPATH) -fno-inline ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
++    debian_no_inline.input = DEBIAN_NO_INLINE
++    QMAKE_EXTRA_UNIX_COMPILERS += debian_no_inline
++
++    DEBIAN_NO_INLINE = __debian_export_symbols.cpp
++}
++
+ wince-* {
+ 	CONFIG -= incremental
+ 	message( ...removing plugin stuff... (not permanent) )
