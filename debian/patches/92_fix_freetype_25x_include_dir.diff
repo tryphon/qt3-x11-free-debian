@@ -1,0 +1,16 @@
+diff --git a/config.tests/x11/xfreetype.test b/config.tests/x11/xfreetype.test
+index 5cabc32..faef1a3 100755
+--- a/config.tests/x11/xfreetype.test
++++ b/config.tests/x11/xfreetype.test
+@@ -117,6 +117,11 @@ fi
+ FREETYPE2_INCDIR=
+ if [ "$XFT" = "yes" ]; then
+     INC="freetype2/freetype/freetype.h"
++
++    if [ -f "/usr/include/freetype2/freetype.h" ]; then
++        INC="freetype2/freetype.h"
++    fi
++
+     XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
+     LDIRS=`sed -n -e '/^QMAKE_INCDIR[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
+     INCDIRS="$IN_INCDIRS $XDIRS $LDIRS /usr/include /include"

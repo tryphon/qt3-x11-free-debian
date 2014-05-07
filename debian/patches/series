@@ -58,3 +58,4 @@
 74_gcc-4.6_ptrdiff_t.diff
 90_armeabi.diff
 91_system_sqlite.diff
+92_fix_freetype_25x_include_dir.diff
