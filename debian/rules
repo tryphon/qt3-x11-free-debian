@@ -98,6 +98,11 @@ CONFIGURE_OPTS = \
 		-inputmethod			\
 		# End of CONFIGURE_OPTS
 
+PG_INCLUDE_DIR_SERVER		= $(shell pg_config --includedir-server 2> /dev/null)
+ifneq   "$(PG_INCLUDE_DIR_SERVER)" ""
+	CONFIGURE_OPTS += -I$(PG_INCLUDE_DIR_SERVER)
+endif
+
 interbase_archs := i386 amd64 sparc powerpc
 ifneq ($(DEB_HOST_ARCH_CPU),$(findstring $(DEB_HOST_ARCH_CPU),$(interbase_archs)))
 	CONFIGURE_OPTS += -no-sql-ibase
