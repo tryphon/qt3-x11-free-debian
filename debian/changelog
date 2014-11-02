@@ -1,6 +1,12 @@
+qt-x11-free (3:3.3.8b-14) unstable; urgency=medium
+
+  * Fix includes to support libiodbc2-dev >= 3.52.9-2
+
+ -- Alban Peignier <alban@tryphon.eu>  Sun, 02 Nov 2014 22:33:15 +0100
+
 qt-x11-free (3:3.3.8b-13) unstable; urgency=low
 
-  * Fix freetype inclusion test in xfreetype.test (fixes #1057)
+  * Fix freetype inclusion test in  xfreetype.test (fixes #1057)
   * Use postgresql-server-dev-all when available (fixes #1058)
 
  -- Alban Peignier <alban@tryphon.eu>  Wed, 07 May 2014 07:35:00 +0200
