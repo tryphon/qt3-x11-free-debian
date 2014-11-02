@@ -1,0 +1,14 @@
+diff --git a/configure b/configure
+index 1f2570f..c54c0ca 100755
+--- a/configure
++++ b/configure
+@@ -1680,6 +1680,9 @@ if echo $MODULES | grep sql >/dev/null; then
+     OCI_REQ="-lclntsh -lwtc8 oci.h"
+     PSQL_REQ="-lpq postgres.h libpq/libpq-fs.h catalog/pg_type.h libpq-fe.h"
+     ODBC_REQ="-lodbc sql.h sqlext.h"
++    if [ -d "/usr/include/iodbc" ]; then
++        I_FLAGS="${I_FLAGS} -I/usr/include/iodbc"
++    fi
+     TDS_REQ="-lsybdb sybfront.h sybdb.h"
+     DB2_REQ="-ldb2 sqlcli.h sqlcli1.h"
+     IBASE_REQ="-lfbclient ibase.h"
